@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="css.css">
+  <meta charset="UTF-8">
+  <title>Generador QR - CAME Día del Padre</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    #qr-container {
+      margin-top: 2rem;
+      background: white;
+      padding: 1rem;
+      display: inline-block;
+      border: 2px solid #333;
+    }
+    .title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generador de QR para Comercios - CAME FET</h1>
+  <input type="text" id="negocio" placeholder="Nombre del comercio">
+  <button onclick="generarQR()">Generar QR</button>
+  <div id="qr-container" style="display:none">
+    <div class="title" id="titulo"></div>
+    <div class="subtitle">PROMOCIÓN DÍA DEL PADRE</div>
+    <div id="qrcode"></div>
+  </div>
+  <button id="descargar" style="display:none" onclick="descargarQR()">Descargar Imagen</button>
+
+  <script>
+    function generarQR() {
+      const nombre = document.getElementById('negocio').value.trim();
+      if (!nombre) return alert('Ingrese un nombre');
+
+      const qrDiv = document.getElementById('qrcode');
+      qrDiv.innerHTML = '';
+      const url = `https://came.com.ar/formulario.html?negocio=${encodeURIComponent(nombre)}`;
+      QRCode.toCanvas(document.createElement('canvas'), url, { width: 256 }, (err, canvas) => {
+        qrDiv.appendChild(canvas);
+        document.getElementById('titulo').innerText = `CAME - FET - ${nombre}`;
+        document.getElementById('qr-container').style.display = 'inline-block';
+        document.getElementById('descargar').style.display = 'inline-block';
+      });
+    }
+
+    function descargarQR() {
+      html2canvas(document.getElementById('qr-container')).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'qr_came.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
