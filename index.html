@@ -2,38 +2,152 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Generador QR - CAME Día del Padre</title>
+  <title>Generador QR - CAME FET</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Tu CSS actual -->
-  <!-- <link rel="stylesheet" href="css.css"> -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 2rem; background: #f4f4f4; margin:0; }
-    .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px;}
-    h1 { color: #333; }
-    input[type="text"] { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; width: calc(70% - 22px); max-width:300px;}
-    button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
-    #qr-container { margin-top: 2rem; background: white; padding: 1rem; display: inline-block; border: 2px solid #333; border-radius: 4px;}
-    .title { font-weight: bold; margin-bottom: 0.5rem; font-size:1.1em; }
-    .subtitle { margin-bottom: 1rem; font-size:0.9em; }
-    #descargar { margin-top: 1rem; background-color: #28a745; }
-    #descargar:hover { background-color: #1e7e34;}
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem 1rem; /* Añadido padding lateral para pantallas pequeñas */
+      background: #f4f4f4;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 25px; /* Un poco más de padding */
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.6em; /* Ajuste de tamaño */
+      margin-bottom: 1.5rem;
+    }
+
+    /* Estilos para todos los campos de entrada */
+    input[type="text"], input[type="tel"] {
+      display: block; /* Para que cada input ocupe una línea */
+      width: 100%; /* Ocupa todo el ancho disponible en el contenedor */
+      max-width: 450px; /* Un ancho máximo para estética en pantallas grandes */
+      padding: 12px; /* Un poco más de padding */
+      margin: 0 auto 18px auto; /* Centrado horizontalmente, con margen inferior */
+      border: 1px solid #ccc;
+      border-radius: 5px; /* Bordes más redondeados */
+      box-sizing: border-box; /* Importante para que el padding y borde no aumenten el width total */
+      font-size: 1em;
+    }
+    input[type="text"]:focus, input[type="tel"]:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    /* Estilos para todos los botones */
+    button {
+      display: block; /* Para ocupar su propia línea y permitir centrado con margin auto */
+      width: 100%;
+      max-width: 250px; /* Ancho máximo para el botón principal */
+      padding: 12px 18px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      margin: 10px auto; /* Centrado y con margen vertical */
+      box-sizing: border-box;
+      transition: background-color 0.2s ease-in-out;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+
+    /* Botón principal de Generar QR */
+    #btnGenerar {
+        background-color: #007bff;
+    }
+    #btnGenerar:hover {
+        background-color: #0056b3;
+    }
+
+    /* Contenedor del QR y título */
+    #qr-visual-container {
+      margin-top: 2rem;
+      /* background: white; // El contenedor ya es blanco, no es necesario
+      padding: 1rem; // Puede ser opcional si qr-content-to-download lo maneja
+      display: inline-block; // Se controla por JS
+      border: 2px solid #333; // Esto podría ser mucho, lo comentamos por ahora
+      border-radius: 4px; */
+    }
+    #qr-content-to-download {
+      background: white; /* Fondo blanco explícito para la descarga */
+      padding: 1.5rem;
+      border: 1px solid #eee; /* Borde sutil para el contenido a descargar */
+      border-radius: 8px;
+      display: inline-block; /* Para que se ajuste al contenido */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1.1em;
+      color: #333;
+    }
+    .subtitle {
+      margin-bottom: 1rem;
+      font-size: 0.9em;
+      color: #555;
+    }
+    #qrcodeCanvas canvas { /* Asegurarse que el canvas no tenga márgenes extraños */
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Botón de Descargar */
+    #descargarBtn {
+      background-color: #28a745;
+      margin-top: 1.5rem; /* Más espacio arriba */
+    }
+    #descargarBtn:hover {
+      background-color: #1e7e34;
+    }
 
     @media (max-width: 600px) {
-      input[type="text"] { width: calc(100% - 22px); margin-bottom:10px; }
-      button { width:100%; margin-bottom:10px;}
+      h1 { font-size: 1.4em; }
+      input[type="text"], input[type="tel"], button {
+        max-width: 100%; /* En móvil, que ocupen el ancho disponible */
+        margin-left: 0;
+        margin-right: 0;
+      }
+      input[type="text"], input[type="tel"] {
+        margin-bottom: 15px; /* Consistencia en margen inferior */
+      }
+      button {
+        margin-bottom: 10px;
+      }
+      .container {
+        padding: 20px 15px; /* Menos padding lateral en el contenedor en móviles */
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Generador de QR para Comercios CAME-FET</h1>
-    <input type="text" id="nombreComercioInput" placeholder="Nombre del comercio">
-    <button onclick="generarQR()">Generar QR</button>
+    <h1>Generador de QR para Comercios<br>CAME-FET</h1> <!-- Salto de línea opcional para mejor visualización -->
 
-    <div id="qr-visual-container" style="display:none; margin-top: 2rem;">
+    <input type="text" id="nombreComercioInput" placeholder="Nombre del comercio (Ej: Kiosco La Esquina)">
+    <input type="text" id="razonSocialInput" placeholder="Razón Social (Ej: Juan Pérez S.A.)">
+    <input type="text" id="cuitInput" placeholder="CUIT (Ej: 20-12345678-9)">
+    <input type="text" id="ciudadInput" placeholder="Ciudad (Ej: Buenos Aires)">
+    <input type="tel" id="telefonoRefInput" placeholder="Teléfono de Ref. (Ej: 11-5555-4444)">
+
+    <button id="btnGenerar" onclick="generarQR()">Generar QR</button>
+
+    <div id="qr-visual-container" style="display:none;">
       <div id="qr-content-to-download">
         <div class="title" id="qrTitulo"></div>
         <div class="subtitle">PROMOCIÓN DÍA DEL PADRE</div>
@@ -46,23 +160,40 @@
   <script>
     function generarQR() {
       const nombreComercio = document.getElementById('nombreComercioInput').value.trim();
+      const razonSocial = document.getElementById('razonSocialInput').value.trim();
+      const cuit = document.getElementById('cuitInput').value.trim();
+      const ciudad = document.getElementById('ciudadInput').value.trim();
+      const telefonoRef = document.getElementById('telefonoRefInput').value.trim();
+
       if (!nombreComercio) {
-        alert('Por favor, ingrese el nombre del comercio.');
+        alert('Por favor, ingrese al menos el Nombre del Comercio.');
         return;
       }
+      // Puedes agregar más validaciones aquí si otros campos son obligatorios
+      // if (!cuit) {
+      //   alert('Por favor, ingrese el CUIT.');
+      //   return;
+      // }
 
       const qrCanvasContainer = document.getElementById('qrcodeCanvas');
       qrCanvasContainer.innerHTML = ''; // Limpiar QR anterior
 
-      // ASEGÚRATE DE QUE ESTA ES LA URL CORRECTA DONDE ESTARÁ TU formulario.html
+      // Asegúrate de que esta es la URL correcta donde estará tu formulario.html
       const baseURLFormulario = "https://stirring-fox-2a2bc6.netlify.app/formulario.html";
-      // O si lo pruebas localmente: const baseURLFormulario = "ruta/a/tu/formulario.html";
+      // O para pruebas locales: const baseURLFormulario = "formulario.html";
 
-      const urlConParametro = `${baseURLFormulario}?negocio=${encodeURIComponent(nombreComercio)}`;
+      const params = new URLSearchParams();
+      if (nombreComercio) params.append('negocio', nombreComercio);
+      if (razonSocial) params.append('razonsocial', razonSocial);
+      if (cuit) params.append('cuit', cuit);
+      if (ciudad) params.append('ciudad', ciudad);
+      if (telefonoRef) params.append('telefono', telefonoRef);
+
+      const urlConParametro = `${baseURLFormulario}?${params.toString()}`;
 
       console.log("URL para QR:", urlConParametro);
 
-      QRCode.toCanvas(urlConParametro, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
+      QRCode.toCanvas(urlConParametro, { errorCorrectionLevel: 'H', width: 256, margin: 2 }, function (err, canvas) {
         if (err) {
           console.error(err);
           alert("Error al generar el QR.");
@@ -77,13 +208,20 @@
     function descargarQR() {
       const elementoParaDescargar = document.getElementById('qr-content-to-download');
       const nombreComercio = document.getElementById('nombreComercioInput').value.trim() || "comercio";
-      const nombreArchivo = `qr_came_dia_del_padre_${nombreComercio.replace(/\s+/g, '_')}.png`;
+      const nombreArchivo = `qr_came_dia_del_padre_${nombreComercio.replace(/\s+/g, '_').toLowerCase()}.png`;
 
-      html2canvas(elementoParaDescargar, { backgroundColor: null, scale: 2 }).then(canvas => { // backgroundColor null para transparencia si el fondo es blanco
+      html2canvas(elementoParaDescargar, {
+        backgroundColor: '#FFFFFF', // Fondo blanco explícito para la imagen
+        scale: 2, // Mayor resolución
+        useCORS: true // Por si hay imágenes externas o fuentes especiales
+      }).then(canvas => {
         const link = document.createElement('a');
         link.download = nombreArchivo;
         link.href = canvas.toDataURL('image/png');
         link.click();
+      }).catch(err => {
+        console.error("Error al descargar la imagen con html2canvas:", err);
+        alert("Hubo un problema al generar la imagen para descargar.");
       });
     }
   </script>
