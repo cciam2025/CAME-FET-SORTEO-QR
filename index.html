@@ -2,171 +2,249 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <title>Generador QR - CAME FET</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulario Día del Padre - CAME</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
-    .container { max-width: 500px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h1 { text-align: center; color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; color: #555; }
-    input[type="text"], input[type="tel"], input[type="hidden"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
-    input[type="text"]:focus, input[type="tel"]:focus { border-color: #3498db; outline: none; box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25); }
-    button { background-color: #3498db; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; font-weight: bold; width: 100%; transition: background-color 0.2s; }
-    button:hover { background-color: #2980b9; }
-    .negocio-info { text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold; color: #333; }
-    .negocio-details { text-align: center; margin-bottom: 25px; font-size: 0.95em; color: #555; line-height: 1.5; }
-    #mensaje { margin-top: 20px; text-align:center; font-weight: bold; padding: 10px; border-radius: 4px; }
-    #mensaje.success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
-    #mensaje.error { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; }
-    @media (max-width: 600px) { h1 { font-size: 1.5em; } body { padding: 10px; } .container { margin: 10px auto; padding: 15px; } }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem 1rem;
+      background: #f4f4f4;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 500px; /* Ancho reducido para mejor estética de un generador */
+      width: 100%;
+      margin: 20px auto;
+      padding: 25px;
+      background-color: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.6em;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 1em;
+    }
+    .form-group input[type="text"]:focus,
+    .form-group input[type="tel"]:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      padding: 12px 18px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      margin: 20px auto 10px auto; /* Más margen superior */
+      box-sizing: border-box;
+      transition: background-color 0.2s ease-in-out;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+
+    #btnGenerar {
+        background-color: #007bff;
+    }
+    #btnGenerar:hover {
+        background-color: #0056b3;
+    }
+
+    #qr-visual-container {
+      margin-top: 2.5rem; /* Más espacio */
+    }
+    #qr-content-to-download {
+      background: white;
+      padding: 1.5rem;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center; /* Centrar contenido interno */
+    }
+    #qr-content-to-download .title { /* Estilo para el título dentro del QR descargable */
+      font-weight: bold;
+      margin-bottom: 0.8rem;
+      font-size: 1.1em;
+      color: #333;
+    }
+    #qr-content-to-download .subtitle { /* Estilo para el subtítulo dentro del QR descargable */
+      margin-bottom: 1rem;
+      font-size: 0.9em;
+      color: #555;
+    }
+    #qrcodeCanvas canvas {
+        display: block;
+        margin: 0 auto;
+    }
+
+    #descargarBtn {
+      background-color: #28a745;
+      margin-top: 1.5rem;
+    }
+    #descargarBtn:hover {
+      background-color: #1e7e34;
+    }
+    .footer-text {
+        margin-top: 30px;
+        font-size: 0.85em;
+        color: #777;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.4em; }
+      body { padding: 10px; }
+      .container { padding: 20px 15px; }
+      button { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Sorteo Día del Padre</h1>
-    <div id="negocioDisplay" class="negocio-info"></div>
-    <div id="negocioDetailsDisplay" class="negocio-details"></div>
+    <h1>Generador de QR para Comercios<br>CAME-FET</h1>
 
-    <form id="formularioSorteo">
-      <div class="form-group">
-        <label for="nombreInput">Nombre</label>
-        <input type="text" id="nombreInput" name="nombre" placeholder="Ingresa tu nombre" required>
-      </div>
-      <div class="form-group">
-        <label for="apellidoInput">Apellido</label>
-        <input type="text" id="apellidoInput" name="apellido" placeholder="Ingresa tu apellido" required>
-      </div>
-      <div class="form-group">
-        <label for="dniInput">DNI</label>
-        <input type="text" id="dniInput" name="dni" placeholder="DNI (sin puntos ni espacios)" required pattern="\d{7,8}" title="DNI debe tener 7 u 8 números.">
-      </div>
-      <div class="form-group">
-        <label for="telefonoInput">Teléfono Participante</label>
-        <input type="tel" id="telefonoInput" name="telefono" placeholder="Ej: 1122334455" required pattern="[0-9]{8,15}" title="Ingresa un número de teléfono válido.">
-      </div>
-      <div class="form-group">
-        <label for="direccionInput">Dirección</label>
-        <input type="text" id="direccionInput" name="direccion" placeholder="Ingresa tu dirección" required>
-      </div>
-      <div class="form-group">
-        <label for="ciudadInput">Ciudad Participante</label>
-        <input type="text" id="ciudadInput" name="ciudad" placeholder="Ingresa tu ciudad" required>
-      </div>
+    <div class="form-group">
+      <label for="nombreComercioInput">Nombre del comercio</label>
+      <input type="text" id="nombreComercioInput" placeholder="Ej: Kiosco La Esquina">
+    </div>
 
-      <!-- Campos ocultos para los datos del negocio -->
-      <input type="hidden" name="negocio" id="nombreNegocioHidden">          <!-- Name: "negocio" -->
-      <input type="hidden" name="razonsocial" id="razonSocialNegocioHidden"> <!-- Name: "razonsocial" -->
-      <input type="hidden" name="cuit" id="cuitNegocioHidden">                <!-- Name: "cuit" -->
-      <input type="hidden" name="ciudad_negocio" id="ciudadNegocioHidden">    <!-- Name: "ciudad_negocio" -->
-      <input type="hidden" name="telefono_negocio" id="telefonoNegocioHidden"> <!-- Name: "telefono_negocio" -->
+    <div class="form-group">
+      <label for="razonSocialInput">Razón Social</label>
+      <input type="text" id="razonSocialInput" placeholder="Ej: Juan Pérez S.A.">
+    </div>
 
-      <button type="submit" id="submitButton">Participar</button>
-    </form>
-    <div id="mensaje"></div>
+    <div class="form-group">
+      <label for="cuitInput">CUIT</label>
+      <input type="text" id="cuitInput" placeholder="Ej: 20-12345678-9">
+    </div>
+
+    <div class="form-group">
+      <label for="ciudadNegocioInput">Ciudad del Comercio</label>
+      <input type="text" id="ciudadNegocioInput" placeholder="Ej: Buenos Aires">
+    </div>
+
+    <div class="form-group">
+      <label for="telefonoNegocioInput">Teléfono de Referencia del Comercio</label>
+      <input type="tel" id="telefonoNegocioInput" placeholder="Ej: 11-5555-4444">
+    </div>
+
+    <button id="btnGenerar" onclick="generarQR()">Generar QR</button>
+
+    <div id="qr-visual-container" style="display:none;">
+      <div id="qr-content-to-download">
+        <div class="title" id="qrTituloComercio"></div>
+        <div class="subtitle">PROMOCIÓN DÍA DEL PADRE</div>
+        <div id="qrcodeCanvas"></div>
+      </div>
+      <button id="descargarBtn" onclick="descargarQR()">Descargar Imagen QR</button>
+    </div>
   </div>
+  <p class="footer-text">Escanea el QR para participar del sorteo del Día del Padre.</p>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxQyBF1rlrqE6P36_QWyCbAjsPZsLdullebFbP04AWsDi6xLgRgLd6fIgsoBVkufe7R4g/exec'; // TU URL DE SCRIPT
+    // IMPORTANTE: Esta es la URL base de tu formulario.html donde los usuarios serán redirigidos.
+    // Asegúrate de que esta URL sea correcta. Si tu formulario.html está en Netlify, usa esa URL.
+    const BASE_URL_FORMULARIO = "https://stirring-fox-2a2bc6.netlify.app/formulario.html";
+    // O si pruebas localmente: const BASE_URL_FORMULARIO = "formulario.html";
 
-    const params = new URLSearchParams(window.location.search);
+    function generarQR() {
+      const nombreComercio = document.getElementById('nombreComercioInput').value.trim();
+      const razonSocial = document.getElementById('razonSocialInput').value.trim();
+      const cuit = document.getElementById('cuitInput').value.trim();
+      const ciudadNegocio = document.getElementById('ciudadNegocioInput').value.trim();
+      const telefonoNegocio = document.getElementById('telefonoNegocioInput').value.trim();
 
-    // Nombres de parámetros EXACTOS que esperas desde el Generador de QR
-    const nombreComercioParam = params.get('negocio');
-    const razonSocialParam = params.get('razonsocial');
-    const cuitParam = params.get('cuit');
-    const ciudadNegocioParam = params.get('ciudad_negocio');
-    const telefonoNegocioParam = params.get('telefono_negocio');
+      if (!nombreComercio) {
+        alert('Por favor, ingrese al menos el Nombre del Comercio.');
+        return;
+      }
+      // Puedes añadir más validaciones aquí si lo deseas (ej: para CUIT)
 
-    // Referencias a los INPUTS HIDDEN
-    const nombreNegocioHiddenInput = document.getElementById('nombreNegocioHidden');
-    const razonSocialNegocioHiddenInput = document.getElementById('razonSocialNegocioHidden');
-    const cuitNegocioHiddenInput = document.getElementById('cuitNegocioHidden');
-    const ciudadNegocioHiddenInput = document.getElementById('ciudadNegocioHidden');
-    const telefonoNegocioHiddenInput = document.getElementById('telefonoNegocioHidden');
+      const qrCanvasContainer = document.getElementById('qrcodeCanvas');
+      qrCanvasContainer.innerHTML = ''; // Limpiar QR anterior
 
-    const negocioDisplayElement = document.getElementById('negocioDisplay');
-    const negocioDetailsDisplayElement = document.getElementById('negocioDetailsDisplay');
-    const formulario = document.getElementById('formularioSorteo');
-    const submitButton = document.getElementById('submitButton');
-    const mensajeDiv = document.getElementById('mensaje');
+      // Construir los parámetros para la URL del formulario
+      const params = new URLSearchParams();
+      if (nombreComercio) params.append('negocio', nombreComercio);
+      if (razonSocial) params.append('razonsocial', razonSocial);
+      if (cuit) params.append('cuit', cuit);
+      if (ciudadNegocio) params.append('ciudad_negocio', ciudadNegocio); // Param: ciudad_negocio
+      if (telefonoNegocio) params.append('telefono_negocio', telefonoNegocio); // Param: telefono_negocio
 
-    let displayNegocioPrincipal = "Comercio no especificado";
-    let displayDetailsTextArray = [];
+      const urlParaQR = `${BASE_URL_FORMULARIO}?${params.toString()}`;
 
-    if (nombreComercioParam) {
-      const nombreDecodificado = decodeURIComponent(nombreComercioParam);
-      nombreNegocioHiddenInput.value = nombreDecodificado; // Asigna al hidden
-      displayNegocioPrincipal = `Comercio: ${nombreDecodificado}`;
-      document.title = `Formulario Día del Padre - ${nombreDecodificado}`;
-    }
-    negocioDisplayElement.textContent = displayNegocioPrincipal;
+      console.log("URL generada para el QR:", urlParaQR);
 
-    if (razonSocialParam) {
-      const rsDecodificada = decodeURIComponent(razonSocialParam);
-      razonSocialNegocioHiddenInput.value = rsDecodificada; // Asigna al hidden
-      displayDetailsTextArray.push(`Razón Social: ${rsDecodificada}`);
-    }
-    if (cuitParam) {
-      const cuitDecodificado = decodeURIComponent(cuitParam);
-      cuitNegocioHiddenInput.value = cuitDecodificado; // Asigna al hidden
-      displayDetailsTextArray.push(`CUIT: ${cuitDecodificado}`);
-    }
-    if (ciudadNegocioParam) {
-      const ciudadNDecodificada = decodeURIComponent(ciudadNegocioParam);
-      ciudadNegocioHiddenInput.value = ciudadNDecodificada; // Asigna al hidden
-      // Opcional: displayDetailsTextArray.push(`Ciudad Negocio: ${ciudadNDecodificada}`);
-    }
-    if (telefonoNegocioParam) {
-      const telefonoNDecodificado = decodeURIComponent(telefonoNegocioParam);
-      telefonoNegocioHiddenInput.value = telefonoNDecodificado; // Asigna al hidden
-      displayDetailsTextArray.push(`Tel. Ref.: ${telefonoNDecodificado}`);
-    }
-
-    if (negocioDetailsDisplayElement && displayDetailsTextArray.length > 0) {
-        negocioDetailsDisplayElement.innerHTML = displayDetailsTextArray.join('<br>');
-    } else if (negocioDetailsDisplayElement) {
-        negocioDetailsDisplayElement.style.display = 'none';
-    }
-
-    formulario.addEventListener('submit', function(e) {
-      e.preventDefault();
-      submitButton.disabled = true;
-      submitButton.textContent = 'Enviando...';
-      mensajeDiv.textContent = '';
-      mensajeDiv.className = '';
-
-      const formData = new FormData(this); // FormData recogerá los valores de los inputs hidden
-
-      fetch(scriptURL, { method: 'POST', body: formData })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Respuesta del servidor:', data); // MUY ÚTIL PARA DEBUG
-        if (data.result === "success") {
-          mensajeDiv.textContent = data.message || "¡Gracias por participar! Formulario enviado correctamente.";
-          mensajeDiv.className = 'success';
-          formulario.reset();
-          // Repoblar campos hidden tras el reset si es necesario (para re-envío sin recarga)
-          if (nombreComercioParam) nombreNegocioHiddenInput.value = decodeURIComponent(nombreComercioParam);
-          if (razonSocialParam) razonSocialNegocioHiddenInput.value = decodeURIComponent(razonSocialParam);
-          if (cuitParam) cuitNegocioHiddenInput.value = decodeURIComponent(cuitParam);
-          if (ciudadNegocioParam) ciudadNegocioHiddenInput.value = decodeURIComponent(ciudadNegocioParam);
-          if (telefonoNegocioParam) telefonoNegocioHiddenInput.value = decodeURIComponent(telefonoNegocioParam);
-        } else {
-          mensajeDiv.textContent = "Error al enviar el formulario: " + (data.message || "Error desconocido.");
-          mensajeDiv.className = 'error';
+      QRCode.toCanvas(urlParaQR, { errorCorrectionLevel: 'H', width: 256, margin: 2 }, function (err, canvas) {
+        if (err) {
+          console.error("Error al generar QR:", err);
+          alert("Error al generar el QR. Revise la consola para más detalles.");
+          return;
         }
-      })
-      .catch(error => {
-        console.error('Error en fetch:', error);
-        mensajeDiv.textContent = "Error de conexión al enviar el formulario. Intenta de nuevo.";
-        mensajeDiv.className = 'error';
-      })
-      .finally(() => {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Participar';
+        qrCanvasContainer.appendChild(canvas);
+        document.getElementById('qrTituloComercio').innerText = `CAME - FET\n${nombreComercio}`; // Título para el QR
+        document.getElementById('qr-visual-container').style.display = 'block';
       });
-    });
+    }
+
+    function descargarQR() {
+      const elementoParaDescargar = document.getElementById('qr-content-to-download');
+      const nombreComercio = document.getElementById('nombreComercioInput').value.trim().replace(/\s+/g, '_').toLowerCase() || "comercio";
+      const nombreArchivo = `qr_came_dia_del_padre_${nombreComercio}.png`;
+
+      html2canvas(elementoParaDescargar, {
+        backgroundColor: '#FFFFFF',
+        scale: 2.5, // Aumentar escala para mejor calidad de imagen
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = nombreArchivo;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        console.error("Error al descargar la imagen con html2canvas:", err);
+        alert("Hubo un problema al generar la imagen para descargar.");
+      });
+    }
   </script>
 </body>
 </html>
