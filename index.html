@@ -48,7 +48,7 @@
 
       const qrDiv = document.getElementById('qrcode');
       qrDiv.innerHTML = '';
-      const url = `https://came.com.ar/formulario.html?negocio=${encodeURIComponent(nombre)}`;
+      const url = `https://stirring-fox-2a2bc6.netlify.app/formulario.html?negocio=${encodeURIComponent(nombre)}`;
       QRCode.toCanvas(document.createElement('canvas'), url, { width: 256 }, (err, canvas) => {
         qrDiv.appendChild(canvas);
         document.getElementById('titulo').innerText = `CAME - FET - ${nombre}`;
