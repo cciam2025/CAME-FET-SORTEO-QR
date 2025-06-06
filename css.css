@@ -154,3 +154,13 @@ button.generar-qr-btn:hover {
     width: 100%;
   }
 }
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #555;
+}
