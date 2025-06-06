@@ -1,67 +1,88 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="stylesheet" href="css.css">
   <meta charset="UTF-8">
   <title>Generador QR - CAME Día del Padre</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tu CSS actual -->
+  <!-- <link rel="stylesheet" href="css.css"> -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-      background: #f4f4f4;
-    }
-    #qr-container {
-      margin-top: 2rem;
-      background: white;
-      padding: 1rem;
-      display: inline-block;
-      border: 2px solid #333;
-    }
-    .title {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
-    .subtitle {
-      margin-bottom: 1rem;
+    body { font-family: sans-serif; text-align: center; padding: 2rem; background: #f4f4f4; margin:0; }
+    .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px;}
+    h1 { color: #333; }
+    input[type="text"] { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; width: calc(70% - 22px); max-width:300px;}
+    button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    #qr-container { margin-top: 2rem; background: white; padding: 1rem; display: inline-block; border: 2px solid #333; border-radius: 4px;}
+    .title { font-weight: bold; margin-bottom: 0.5rem; font-size:1.1em; }
+    .subtitle { margin-bottom: 1rem; font-size:0.9em; }
+    #descargar { margin-top: 1rem; background-color: #28a745; }
+    #descargar:hover { background-color: #1e7e34;}
+
+    @media (max-width: 600px) {
+      input[type="text"] { width: calc(100% - 22px); margin-bottom:10px; }
+      button { width:100%; margin-bottom:10px;}
     }
   </style>
 </head>
 <body>
-  <h1>Generador de QR para Comercios - CAME FET</h1>
-  <input type="text" id="negocio" placeholder="Nombre del comercio">
-  <button onclick="generarQR()">Generar QR</button>
-  <div id="qr-container" style="display:none">
-    <div class="title" id="titulo"></div>
-    <div class="subtitle">PROMOCIÓN DÍA DEL PADRE</div>
-    <div id="qrcode"></div>
+  <div class="container">
+    <h1>Generador de QR para Comercios - CAME FET</h1>
+    <input type="text" id="nombreComercioInput" placeholder="Nombre del comercio">
+    <button onclick="generarQR()">Generar QR</button>
+
+    <div id="qr-visual-container" style="display:none; margin-top: 2rem;">
+      <div id="qr-content-to-download">
+        <div class="title" id="qrTitulo"></div>
+        <div class="subtitle">PROMOCIÓN DÍA DEL PADRE</div>
+        <div id="qrcodeCanvas"></div> <!-- El canvas se agregará aquí -->
+      </div>
+      <button id="descargarBtn" onclick="descargarQR()">Descargar Imagen</button>
+    </div>
   </div>
-  <button id="descargar" style="display:none" onclick="descargarQR()">Descargar Imagen</button>
 
   <script>
     function generarQR() {
-      const nombre = document.getElementById('negocio').value.trim();
-      if (!nombre) return alert('Ingrese un nombre');
+      const nombreComercio = document.getElementById('nombreComercioInput').value.trim();
+      if (!nombreComercio) {
+        alert('Por favor, ingrese el nombre del comercio.');
+        return;
+      }
 
-      const qrDiv = document.getElementById('qrcode');
-      qrDiv.innerHTML = '';
-      const url = `https://stirring-fox-2a2bc6.netlify.app/formulario.html?negocio=${encodeURIComponent(nombre)}`;
-      QRCode.toCanvas(document.createElement('canvas'), url, { width: 256 }, (err, canvas) => {
-        qrDiv.appendChild(canvas);
-        document.getElementById('titulo').innerText = `CAME - FET - ${nombre}`;
-        document.getElementById('qr-container').style.display = 'inline-block';
-        document.getElementById('descargar').style.display = 'inline-block';
+      const qrCanvasContainer = document.getElementById('qrcodeCanvas');
+      qrCanvasContainer.innerHTML = ''; // Limpiar QR anterior
+
+      // ASEGÚRATE DE QUE ESTA ES LA URL CORRECTA DONDE ESTARÁ TU formulario.html
+      const baseURLFormulario = "https://stirring-fox-2a2bc6.netlify.app/formulario.html";
+      // O si lo pruebas localmente: const baseURLFormulario = "ruta/a/tu/formulario.html";
+
+      const urlConParametro = `${baseURLFormulario}?negocio=${encodeURIComponent(nombreComercio)}`;
+
+      console.log("URL para QR:", urlConParametro);
+
+      QRCode.toCanvas(urlConParametro, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
+        if (err) {
+          console.error(err);
+          alert("Error al generar el QR.");
+          return;
+        }
+        qrCanvasContainer.appendChild(canvas);
+        document.getElementById('qrTitulo').innerText = `CAME - FET - ${nombreComercio}`;
+        document.getElementById('qr-visual-container').style.display = 'block';
       });
     }
 
     function descargarQR() {
-      html2canvas(document.getElementById('qr-container')).then(canvas => {
+      const elementoParaDescargar = document.getElementById('qr-content-to-download');
+      const nombreComercio = document.getElementById('nombreComercioInput').value.trim() || "comercio";
+      const nombreArchivo = `qr_came_dia_del_padre_${nombreComercio.replace(/\s+/g, '_')}.png`;
+
+      html2canvas(elementoParaDescargar, { backgroundColor: null, scale: 2 }).then(canvas => { // backgroundColor null para transparencia si el fondo es blanco
         const link = document.createElement('a');
-        link.download = 'qr_came.png';
-        link.href = canvas.toDataURL();
+        link.download = nombreArchivo;
+        link.href = canvas.toDataURL('image/png');
         link.click();
       });
     }
