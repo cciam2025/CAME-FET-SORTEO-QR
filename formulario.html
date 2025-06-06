@@ -1,33 +1,100 @@
-<form id="formulario">
-  <input name="nombre" placeholder="Nombre" required>
-  <input name="apellido" placeholder="Apellido" required>
-  <input name="dni" placeholder="DNI" required>
-  <input name="direccion" placeholder="Dirección" required>
-  <input name="ciudad" placeholder="Ciudad" required>
-  <input type="hidden" name="negocio" id="negocio">
-  <button type="submit">Enviar</button>
-</form>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario Día del Padre - CAME</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+    .container { max-width: 500px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #2c3e50; }
+    input[type="text"], input[type="hidden"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+    button { background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+    button:hover { background-color: #2980b9; }
+    .negocio-info { text-align: center; margin-bottom: 20px; font-size: 1.1em; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sorteo Día del Padre</h1>
+    <div id="negocioDisplay" class="negocio-info"></div>
 
-<script>
-  const scriptURL = 'TU_URL_PUBLICA_AQUI';
+    <form id="formularioSorteo">
+      <input name="nombre" placeholder="Nombre" required>
+      <input name="apellido" placeholder="Apellido" required>
+      <input name="dni" placeholder="DNI (sin puntos ni espacios)" required pattern="\d{7,8}" title="DNI debe tener 7 u 8 números.">
+      <input name="direccion" placeholder="Dirección" required>
+      <input name="ciudad" placeholder="Ciudad" required>
+      <input type="hidden" name="negocio" id="negocioHidden">
+      <button type="submit" id="submitButton">Participar</button>
+    </form>
+    <div id="mensaje" style="margin-top:15px; text-align:center;"></div>
+  </div>
 
-  const params = new URLSearchParams(window.location.search);
-  const negocio = params.get('negocio');
-  if (negocio) document.getElementById('negocio').value = decodeURIComponent(negocio);
+  <script>
+    // ¡IMPORTANTE! REEMPLAZA ESTA URL CON LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw3CHPoIWz3paJ91BjVD7w0us462w_0vPw_6qq4H59Dvvo-zpjTo9v9VCcCWOh-1FR82g/exec';
 
-  document.getElementById('formulario').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const data = new FormData(this);
-    const query = new URLSearchParams(data).toString();
+    const params = new URLSearchParams(window.location.search);
+    const negocioNombre = params.get('negocio');
 
-    fetch(`${scriptURL}?${query}`)
-      .then(res => res.text())
-      .then(() => {
-        alert("Formulario enviado correctamente");
-        this.reset();
+    const negocioHiddenInput = document.getElementById('negocioHidden');
+    const negocioDisplayElement = document.getElementById('negocioDisplay');
+    const formulario = document.getElementById('formularioSorteo');
+    const submitButton = document.getElementById('submitButton');
+    const mensajeDiv = document.getElementById('mensaje');
+
+    if (negocioNombre) {
+      const nombreDecodificado = decodeURIComponent(negocioNombre);
+      negocioHiddenInput.value = nombreDecodificado;
+      if (negocioDisplayElement) {
+        negocioDisplayElement.textContent = `Comercio: ${nombreDecodificado}`;
+      }
+      document.title = `Formulario Día del Padre - ${nombreDecodificado}`;
+    } else {
+      if (negocioDisplayElement) {
+        negocioDisplayElement.textContent = "Comercio no especificado";
+      }
+    }
+
+    formulario.addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitButton.disabled = true;
+      submitButton.textContent = 'Enviando...';
+      mensajeDiv.textContent = '';
+
+      const formData = new FormData(this);
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: formData // FormData se envía correctamente con POST
       })
-      .catch(() => alert("Error al enviar"));
-  });
-</script>
+      .then(response => response.json()) // Esperamos una respuesta JSON del script
+      .then(data => {
+        console.log('Respuesta del servidor:', data);
+        if (data.result === "success") {
+          mensajeDiv.style.color = "green";
+          mensajeDiv.textContent = "¡Gracias por participar! Formulario enviado correctamente.";
+          formulario.reset(); // Limpiar el formulario
+          // Opcional: redirigir o mostrar un mensaje más grande
+          // window.location.href = 'pagina_de_gracias.html';
+        } else {
+          mensajeDiv.style.color = "red";
+          mensajeDiv.textContent = "Error al enviar el formulario: " + (data.message || "Error desconocido.");
+        }
+      })
+      .catch(error => {
+        console.error('Error en fetch:', error);
+        mensajeDiv.style.color = "red";
+        mensajeDiv.textContent = "Error de conexión al enviar el formulario. Intenta de nuevo.";
+      })
+      .finally(() => {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Participar';
+      });
+    });
+  </script>
+</body>
+</html>
 
 
