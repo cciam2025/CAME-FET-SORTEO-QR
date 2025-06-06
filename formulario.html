@@ -8,7 +8,7 @@
     body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
     .container { max-width: 500px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     h1 { text-align: center; color: #2c3e50; }
-    input[type="text"], input[type="tel"], input[type="hidden"] { /* Añadido input[type="tel"] */
+    input[type="text"], input[type="tel"], input[type="hidden"] {
       width: calc(100% - 22px);
       padding: 10px;
       margin-bottom: 15px;
@@ -19,50 +19,69 @@
     button { background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
     button:hover { background-color: #2980b9; }
     .negocio-info { text-align: center; margin-bottom: 20px; font-size: 1.1em; font-weight: bold; }
+    .negocio-details { text-align: center; margin-bottom: 20px; font-size: 0.9em; color: #555; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Sorteo Día del Padre</h1>
     <div id="negocioDisplay" class="negocio-info"></div>
+    <div id="negocioDetailsDisplay" class="negocio-details"></div> <!-- Para mostrar más detalles del negocio -->
 
     <form id="formularioSorteo">
-      <input name="nombre" placeholder="Nombre" required>
-      <input name="apellido" placeholder="Apellido" required>
-      <input name="dni" placeholder="DNI (sin puntos ni espacios)" required pattern="\d{7,8}" title="DNI debe tener 7 u 8 números.">
-      <!-- NUEVO CAMPO TELÉFONO -->
-      <input type="tel" name="telefono" placeholder="Teléfono (Ej: 1122334455)" required pattern="[0-9]{8,15}" title="Ingresa un número de teléfono válido (solo números, entre 8 y 15 dígitos).">
-      <input name="direccion" placeholder="Dirección" required>
-      <input name="ciudad" placeholder="Ciudad" required>
-      <input type="hidden" name="negocio" id="negocioHidden">
+      <!-- Campos para el participante -->
+      <input name="nombre" placeholder="Tu Nombre" required>
+      <input name="apellido" placeholder="Tu Apellido" required>
+      <input name="dni" placeholder="Tu DNI (sin puntos ni espacios)" required pattern="\d{7,8}" title="DNI debe tener 7 u 8 números.">
+      <input type="tel" name="telefono" placeholder="Tu Teléfono (Ej: 1122334455)" required pattern="[0-9]{8,15}" title="Ingresa un número de teléfono válido (solo números, entre 8 y 15 dígitos).">
+      <input name="direccion" placeholder="Tu Dirección" required>
+      <input name="ciudad" placeholder="Tu Ciudad" required>
+
+      <!-- Campos ocultos para los datos del negocio (se llenarán desde los parámetros URL) -->
+      <input type="hidden" name="negocio" id="nombreNegocioHidden">          <!-- Nombre del Negocio (ya lo tenías como negocioHidden) -->
+      <input type="hidden" name="razonsocial" id="razonSocialNegocioHidden"> <!-- Razón Social del Negocio -->
+      <input type="hidden" name="cuit" id="cuitNegocioHidden">                <!-- CUIT del Negocio -->
+      <input type="hidden" name="ciudad_negocio" id="ciudadNegocioHidden">    <!-- Ciudad del Negocio -->
+      <input type="hidden" name="telefono_negocio" id="telefonoNegocioHidden"> <!-- Teléfono de Ref. del Negocio -->
+
       <button type="submit" id="submitButton">Participar</button>
     </form>
     <div id="mensaje" style="margin-top:15px; text-align:center;"></div>
   </div>
 
   <script>
-    // ¡IMPORTANTE! REEMPLAZA ESTA URL CON LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxQyBF1rlrqE6P36_QWyCbAjsPZsLdullebFbP04AWsDi6xLgRgLd6fIgsoBVkufe7R4g/exec'; // Mantén tu URL
+    // ¡IMPORTANTE! REEMPLAZA ESTA URL CON LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT ACTUALIZADA
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxQyBF1rlrqE6P36_QWyCbAjsPZsLdullebFbP04AWsDi6xLgRgLd6fIgsoBVkufe7R4g/exec'; // Mantén tu URL o actualízala si la re-implementaste
 
     const params = new URLSearchParams(window.location.search);
-    const negocioNombre = params.get('negocio');
-    // Capturar también los otros parámetros si quieres pre-llenarlos o mostrarlos
-    // const razonSocial = params.get('razonsocial');
-    // const cuit = params.get('cuit');
-    // const ciudadNegocio = params.get('ciudad'); // Ojo con el nombre, puede colisionar
-    // const telefonoNegocio = params.get('telefono'); // Ojo con el nombre, puede colisionar
 
-    const negocioHiddenInput = document.getElementById('negocioHidden');
+    // Capturar datos del negocio desde los parámetros URL
+    const nombreComercioParam = params.get('negocio');        // Parámetro 'negocio' para Nombre del Comercio
+    const razonSocialParam = params.get('razonsocial');       // Parámetro 'razonsocial'
+    const cuitParam = params.get('cuit');                     // Parámetro 'cuit'
+    const ciudadNegocioParam = params.get('ciudad_negocio');  // Parámetro 'ciudad_negocio'
+    const telefonoNegocioParam = params.get('telefono_negocio'); // Parámetro 'telefono_negocio'
+
+    // Obtener referencias a los elementos del DOM
+    const nombreNegocioHiddenInput = document.getElementById('nombreNegocioHidden');
+    const razonSocialNegocioHiddenInput = document.getElementById('razonSocialNegocioHidden');
+    const cuitNegocioHiddenInput = document.getElementById('cuitNegocioHidden');
+    const ciudadNegocioHiddenInput = document.getElementById('ciudadNegocioHidden');
+    const telefonoNegocioHiddenInput = document.getElementById('telefonoNegocioHidden');
+
     const negocioDisplayElement = document.getElementById('negocioDisplay');
+    const negocioDetailsDisplayElement = document.getElementById('negocioDetailsDisplay'); // Elemento para mostrar más detalles
     const formulario = document.getElementById('formularioSorteo');
     const submitButton = document.getElementById('submitButton');
     const mensajeDiv = document.getElementById('mensaje');
 
-    if (negocioNombre) {
-      const nombreDecodificado = decodeURIComponent(negocioNombre);
-      negocioHiddenInput.value = nombreDecodificado;
+    let displayDetailsText = [];
+
+    // Llenar el campo hidden y mostrar el nombre del negocio
+    if (nombreComercioParam) {
+      const nombreDecodificado = decodeURIComponent(nombreComercioParam);
+      nombreNegocioHiddenInput.value = nombreDecodificado;
       if (negocioDisplayElement) {
-        // Puedes agregar más información del negocio si la pasas por URL y la necesitas
         negocioDisplayElement.textContent = `Comercio: ${nombreDecodificado}`;
       }
       document.title = `Formulario Día del Padre - ${nombreDecodificado}`;
@@ -72,13 +91,36 @@
       }
     }
 
+    // Llenar campos hidden y mostrar detalles adicionales del negocio
+    if (razonSocialParam) {
+      razonSocialNegocioHiddenInput.value = decodeURIComponent(razonSocialParam);
+      displayDetailsText.push(`Razón Social: ${decodeURIComponent(razonSocialParam)}`);
+    }
+    if (cuitParam) {
+      cuitNegocioHiddenInput.value = decodeURIComponent(cuitParam);
+      displayDetailsText.push(`CUIT: ${decodeURIComponent(cuitParam)}`);
+    }
+    if (ciudadNegocioParam) {
+      ciudadNegocioHiddenInput.value = decodeURIComponent(ciudadNegocioParam);
+      // displayDetailsText.push(`Ciudad: ${decodeURIComponent(ciudadNegocioParam)}`); // Opcional mostrarlo
+    }
+    if (telefonoNegocioParam) {
+      telefonoNegocioHiddenInput.value = decodeURIComponent(telefonoNegocioParam);
+      // displayDetailsText.push(`Tel. Ref.: ${decodeURIComponent(telefonoNegocioParam)}`); // Opcional mostrarlo
+    }
+
+    if (negocioDetailsDisplayElement && displayDetailsText.length > 0) {
+        negocioDetailsDisplayElement.innerHTML = displayDetailsText.join('<br>');
+    }
+
+
     formulario.addEventListener('submit', function(e) {
       e.preventDefault();
       submitButton.disabled = true;
       submitButton.textContent = 'Enviando...';
       mensajeDiv.textContent = '';
 
-      const formData = new FormData(this); // Esto ya recogerá el nuevo campo "telefono"
+      const formData = new FormData(this); // Esto recogerá TODOS los campos con 'name', incluidos los hidden
 
       fetch(scriptURL, {
         method: 'POST',
@@ -91,6 +133,12 @@
           mensajeDiv.style.color = "green";
           mensajeDiv.textContent = "¡Gracias por participar! Formulario enviado correctamente.";
           formulario.reset();
+          // Limpiar también los campos hidden por si acaso, aunque reset() debería hacerlo para inputs
+          nombreNegocioHiddenInput.value = nombreComercioParam ? decodeURIComponent(nombreComercioParam) : '';
+          razonSocialNegocioHiddenInput.value = razonSocialParam ? decodeURIComponent(razonSocialParam) : '';
+          cuitNegocioHiddenInput.value = cuitParam ? decodeURIComponent(cuitParam) : '';
+          ciudadNegocioHiddenInput.value = ciudadNegocioParam ? decodeURIComponent(ciudadNegocioParam) : '';
+          telefonoNegocioHiddenInput.value = telefonoNegocioParam ? decodeURIComponent(telefonoNegocioParam) : '';
         } else {
           mensajeDiv.style.color = "red";
           mensajeDiv.textContent = "Error al enviar el formulario: " + (data.message || "Error desconocido.");
